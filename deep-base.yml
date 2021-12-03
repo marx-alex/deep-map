@@ -1,0 +1,17 @@
+name: deep-map
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+dependencies:
+  - python>=3.8
+  - numpy
+  - scikit-learn
+  - scikit-learn-intelex
+  - jupyter
+  - pip
+  - pip:
+    - torch
+    - torchvision
+    - torchaudio
+    - pytorch-lightning
