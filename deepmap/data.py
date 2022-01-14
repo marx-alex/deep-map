@@ -18,16 +18,28 @@ class ClassifierDataset(Dataset):
 
 
 class DataModule(pl.LightningDataModule):
-    def __init__(self, X_data: np.array, y_data: np.array, batch_size: int = 32,
+    def __init__(self, X_data: np.ndarray, y_data: np.ndarray, batch_size: int = 32,
                  num_workers=0):
         super().__init__()
 
-        X_trainval, X_test, y_trainval, y_test = train_test_split(X_data, y_data,
-                                                                  test_size=0.2, stratify=y_data,
-                                                                  random_state=0)
-        X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval,
-                                                          test_size=0.1, stratify=y_trainval,
-                                                          random_state=0)
+        ix_data = np.arange(X_data.shape[0])
+
+        X_trainval, X_test, y_trainval, y_test, ix_trainval, ix_test = train_test_split(X_data, y_data,
+                                                                                        ix_data,
+                                                                                        test_size=0.33,
+                                                                                        stratify=y_data,
+                                                                                        random_state=0)
+
+        X_train, X_val, y_train, y_val, ix_train, ix_val = train_test_split(X_trainval, y_trainval,
+                                                                            ix_trainval,
+                                                                            test_size=0.2, stratify=y_trainval,
+                                                                            random_state=0)
+
+        self.ix_data = ix_data
+        self.ix_trainval = ix_trainval
+        self.ix_test = ix_test
+        self.ix_train = ix_train
+        self.ix_val = ix_val
         self.test_dataset = ClassifierDataset(torch.from_numpy(X_test).double(),
                                               torch.from_numpy(y_test).long())
         self.train_dataset = ClassifierDataset(torch.from_numpy(X_train).double(),

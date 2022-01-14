@@ -30,9 +30,19 @@ class ClusterDistance(nn.Module):
             initial_cluster_centers = cluster_centers
         self.cluster_centers = nn.Parameter(initial_cluster_centers)
 
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
 
-class Encoder(pl.LightningModule):
-    """Autoencoder.
+        :param x: FloatTensor of [batch size, embedding dimension]
+        :param y: FloatTensor of [batch size,]
+        :return: FloatTensor [batch size, number of clusters]
+        """
+
+        return torch.cdist(x, self.cluster_centers)
+
+
+class CombinedEncoder(pl.LightningModule):
+    """Encoding with Clustering.
 
     Args:
     in_shape (int): input shape
@@ -61,8 +71,8 @@ class Encoder(pl.LightningModule):
             nn.Linear(16, self.enc_shape),
         )
 
-        self.cluster = ClusterDistance(self.n_classes, self.enc_shape)
-        self.cluster_act = nn.Sequential(
+        self.cluster = nn.Sequential(
+            ClusterDistance(self.n_classes, self.enc_shape),
             nn.Tanhshrink(),
             nn.Softmax(dim=1)
         )
@@ -70,7 +80,6 @@ class Encoder(pl.LightningModule):
     def forward(self, x):
         z = self.encode(x)
         out = self.cluster(z)
-        out = self.cluster_act(out)
 
         return z, out
 

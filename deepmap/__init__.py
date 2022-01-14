@@ -1,3 +1,3 @@
-from .model import Encoder
+from .model import CombinedEncoder
 from .data import DataModule
-from .utils import choose_representation
+from .deepmap import DeepMap
